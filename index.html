@@ -1,0 +1,569 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --dark-lighter: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --glass-bg: rgba(15, 23, 42, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: transparent;
+            overflow: hidden;
+            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+        }
+
+        .job-center-container {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.85);
+            width: min(95vw, 1100px);
+            max-height: 85vh;
+            background: var(--glass-bg);
+            border-radius: 24px;
+            box-shadow: none; 
+            backdrop-filter: blur(20px) saturate(180%);
+            border: none; 
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            overflow: hidden;
+        }
+
+        .job-center-container.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .header {
+            padding: 32px 40px 28px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.05));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
+            background-size: 200% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h2 {
+            color: var(--text-primary);
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.025em;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        .close-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 16px;
+        }
+
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2);
+        }
+
+        .content {
+            padding: 32px 40px 40px;
+            max-height: calc(85vh - 120px);
+            overflow-y: auto;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 16px 24px 16px 48px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 400;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-container input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .jobs-section h3 {
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .job-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+            border-radius: 20px;
+            padding: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--job-color), rgba(255, 255, 255, 0.2), var(--job-color));
+            opacity: 0.8;
+        }
+
+        .job-card::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--job-color), rgba(255, 255, 255, 0.1));
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .job-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            border-color: var(--job-color);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        }
+
+        .job-card:hover::after {
+            opacity: 0.1;
+        }
+
+        .job-card.whitelist {
+            border-color: rgba(245, 158, 11, 0.3);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.02));
+        }
+
+        .job-card.current {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            cursor: default;
+            transform: none !important;
+        }
+
+        .job-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .job-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            background: linear-gradient(135deg, var(--job-color), rgba(255, 255, 255, 0.1));
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .job-title {
+            color: var(--text-primary);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .job-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+            font-weight: 400;
+            flex-grow: 1;
+        }
+
+        .whitelist-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
+            color: var(--warning);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .current-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+            color: var(--success);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .select-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            margin-top: 20px;
+        }
+
+        .select-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .job-card:hover .job-icon {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .header-icon {
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+            .job-center-container {
+                width: 95vw;
+                max-height: 90vh;
+                border-radius: 16px;
+            }
+            
+            .header {
+                padding: 24px 24px 20px;
+            }
+            
+            .header h2 {
+                font-size: 24px;
+            }
+            
+            .content {
+                padding: 24px;
+            }
+            
+            .jobs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="jobCenter" class="job-center-container">
+        <div class="header">
+            <div class="header-content">
+                <h2>
+                    <div class="header-icon">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <span id="headerTitle">Job Center</span>
+                </h2>
+                <button class="close-btn" onclick="closeJobCenter()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="search-container">
+                <input type="text" id="jobSearch" placeholder="Search jobs...">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <div class="jobs-section">
+                <h3 id="availableJobsTitle">
+                    <i class="fas fa-search"></i>
+                    Browse Opportunities
+                </h3>
+                <div class="jobs-grid" id="jobsGrid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isOpen = false;
+
+        window.addEventListener('message', function(event) {
+            const data = event.data;
+            
+            if (data.type === 'openJobCenter') {
+                openJobCenter(data);
+            } else if (data.type === 'closeJobCenter') {
+                closeJobCenter();
+            }
+        });
+
+        function openJobCenter(data) {
+            if (isOpen) return;
+            
+            isOpen = true;
+            
+            const container = document.getElementById('jobCenter');
+            
+            container.style.display = 'block';
+            
+            requestAnimationFrame(() => {
+                container.classList.add('show');
+            });
+            
+            document.getElementById('headerTitle').textContent = data.texts.ui_title;
+            document.getElementById('availableJobsTitle').innerHTML = '<i class="fas fa-search"></i> Browse Opportunities';
+            
+            const jobsGrid = document.getElementById('jobsGrid');
+            jobsGrid.innerHTML = '';
+            
+            data.jobs.forEach((job, index) => {
+                const jobCard = createJobCard(job, data.currentJob.name, data.texts);
+                jobCard.style.opacity = '0';
+                jobCard.style.transform = 'translateY(20px)';
+                jobsGrid.appendChild(jobCard);
+                
+                setTimeout(() => {
+                    jobCard.style.transition = 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    jobCard.style.opacity = '1';
+                    jobCard.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            
+            const searchInput = document.getElementById('jobSearch');
+            searchInput.addEventListener('keyup', function() {
+                const term = this.value.toLowerCase();
+                const cards = document.querySelectorAll('.job-card');
+                cards.forEach(card => {
+                    const title = card.querySelector('.job-title').textContent.toLowerCase();
+                    const desc = card.querySelector('.job-description').textContent.toLowerCase();
+                    if (title.includes(term) || desc.includes(term)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        function createJobCard(job, currentJobName, texts) {
+            const jobCard = document.createElement('div');
+            jobCard.className = 'job-card';
+            jobCard.style.setProperty('--job-color', job.color);
+            
+            if (job.whitelist) {
+                jobCard.classList.add('whitelist');
+            }
+            
+            if (job.name === currentJobName) {
+                jobCard.classList.add('current');
+            }
+            
+            let badge = '';
+            if (job.whitelist) {
+                badge = '<div class="whitelist-badge">Whitelist</div>';
+            }
+            if (job.name === currentJobName) {
+                badge = '<div class="current-badge">Current</div>';
+            }
+            
+            let button = '';
+            if (job.name !== currentJobName) {
+                button = '<button class="select-btn">Select Job</button>';
+            }
+            
+            jobCard.innerHTML = `
+                ${badge}
+                <div class="job-header">
+                    <div class="job-icon"><i class="${job.icon}"></i></div>
+                    <div class="job-title">${job.label}</div>
+                </div>
+                <div class="job-description">${job.description}</div>
+                ${button}
+            `;
+            
+            if (job.name !== currentJobName) {
+                const btn = jobCard.querySelector('.select-btn');
+                btn.onclick = () => selectJob(job.name);
+            }
+            
+            return jobCard;
+        }
+
+        function selectJob(jobName) {
+            fetch(`https://${GetParentResourceName()}/selectJob`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify({ job: jobName })
+            });
+        }
+
+        function closeJobCenter() {
+            if (!isOpen) return;
+            
+            const container = document.getElementById('jobCenter');
+            
+            container.classList.remove('show');
+            
+            setTimeout(() => {
+                container.style.display = 'none';
+                isOpen = false;
+            }, 400);
+            
+            fetch(`https://${GetParentResourceName()}/closeUI`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify({})
+            });
+        }
+
+        document.addEventListener('keyup', function(event) {
+            if (event.key === 'Escape' && isOpen) {
+                closeJobCenter();
+            }
+        });
+    </script>
+</body>
+</html>
